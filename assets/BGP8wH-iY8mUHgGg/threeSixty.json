@@ -1,0 +1,115 @@
+{
+  "version": "3.105.35604.0",
+  "course_id": "Cyber-incident-DED",
+  "title": "Hacker-Workshop BLPK",
+  "thumbnail": "story_content/thumbnail.jpg",
+  "scenes": [
+    {
+      "title": "1a"
+    },
+    {
+      "title": "1b"
+    },
+    {
+      "title": "2a"
+    },
+    {
+      "title": "2b"
+    },
+    {
+      "title": "2c"
+    },
+    {
+      "title": "3a"
+    },
+    {
+      "title": "3b"
+    }
+  ],
+  "slides": [
+    {
+      "id": "5hHMZuoIlHP",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "69TV5QIB9Ru",
+      "title": "Was ist ein Datenschutznotfall?",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "5oIC9W5Op75",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "2.1"
+    },
+    {
+      "id": "6J9yHaOzZnh",
+      "title": "1b",
+      "scene_index": "2.2"
+    },
+    {
+      "id": "5byt5nXLi7i",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "3.1"
+    },
+    {
+      "id": "5Wtel1VizFS",
+      "title": "Was ist ein Datenschutznotfall?",
+      "scene_index": "3.2"
+    },
+    {
+      "id": "61OStxD8M2v",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "4.1"
+    },
+    {
+      "id": "6DowW3uPS6F",
+      "title": "Was ist ein Datenschutznotfall?",
+      "scene_index": "4.2"
+    },
+    {
+      "id": "5pbtLl204zU",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "5.1"
+    },
+    {
+      "id": "6hyupJ6XtX4",
+      "title": "Video",
+      "scene_index": "5.2"
+    },
+    {
+      "id": "5nC9oNivpgq",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "6.1"
+    },
+    {
+      "id": "5XiRcknXkHS",
+      "title": "Was ist ein Datenschutznotfall?",
+      "scene_index": "6.2"
+    },
+    {
+      "id": "6d2TswPIdyK",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "7.1"
+    },
+    {
+      "id": "5b2WG5Hs0ve",
+      "title": "Was ist ein Cyber Incident?",
+      "scene_index": "7.2"
+    },
+    {
+      "id": "6FmCHpOjfSU",
+      "title": "Video",
+      "scene_index": "7.3"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1020,
+    "height": 582
+  },
+  "stage": {
+    "width": 1000,
+    "height": 562
+  }
+}

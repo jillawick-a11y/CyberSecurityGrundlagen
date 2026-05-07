@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anruf bei Walter Where</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+
+    #chat-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+      min-height: 500px;
+    }
+
+    #chat-header {
+      background-color: #4d2494; /* ANGEPASSTE FARBE */
+      color: #fff; /* Bessere Lesbarkeit */
+      font-family: monospace;
+      padding: 15px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: center;
+    }
+
+    #chat-log {
+      flex-grow: 1;
+      padding: 15px;
+      overflow-y: auto;
+      border-bottom: 1px solid #eee;
+    }
+
+    .chat-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 18px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    /* Diese CSS-Klasse wird für das Avatar-Bild verwendet */
+    .chat-message img.avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Der Bot (Opfer) */
+    .speaker-walter { 
+      background-color: #e9e9eb;
+      color: #000;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    /* Der User (Hacker) */
+    .speaker-user {
+        background-color: #006D41;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+    }
+
+    #options-area {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-button {
+      background-color: #4d2494; /* ANGEPASSTE FARBE */
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 18px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .option-button:hover {
+      background-color: #3a1a7a; /* Dunklere Hover-Farbe */
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-header">
+      <h2>Anruf bei W. Where (IT-Support)</h2>
+    </div>
+    <div id="chat-log"></div>
+    <div id="options-area"></div>
+  </div>
+
+<script>
+    const chatLog = document.getElementById("chat-log");
+    const optionsArea = document.getElementById("options-area");
+
+    // Avatar für Walter (Opfer)
+    const walterAvatar = "walter_avatar.png"; 
+
+    const conversation = [
+      // 0: Start (Hacker's Turn - KEIN BOT-TEXT)
+      {
+        id: 0,
+        text: null, 
+        options: [
+          { text: "Guten Tag Herr Where, hier Tim Müller... wegen einer routinemässigen Überprüfung Ihres Kontos.", next: 100 },
+          { text: "Guten Tag Herr Where, hier Tim Müller... wegen eines verdächtigen Login-Versuchs, als Sie gerade im Bean Goose Coffee waren.", next: 1 },
+          { text: "Guten Tag Herr Where, hier Tim Müller... wegen Ihres Passworts, das wir zurücksetzen müssen.", next: 101 }
+        ]
+      },
+      // 1: Walter (Opfer) antwortet auf ERFOLGREICHE Eröffnung
+      {
+        id: 1,
+        text: "Oh, ja, da bin ich gerade! Worum geht es?",
+        options: [
+          { text: "Wir glauben, jemand versucht, Ihr Konto zu hacken. Wir müssen es sofort sperren.", next: 102 },
+          { text: "Ihr Passwort 'Bellomio1975' ist unsicher. Sie müssen es ändern.", next: 103 },
+          { text: "Um den Angreifer zu blockieren, müssen wir Ihr Konto neu synchronisieren. Sie haben gerade eben einen 6-stelligen Code per SMS erhalten, korrekt?", next: 2 }
+        ]
+      },
+      // 2: Walter (Opfer) antwortet
+      {
+        id: 2,
+        text: "Ja, den Code habe ich gerade bekommen! 912-345.",
+        options: [
+          { text: "Danke. Und wie lautet Ihr Passwort, nur zur Bestätigung?", next: 104 },
+          { text: "Perfekt, danke. Ich gebe den Code hier ein... so. Ihr Konto ist wieder sicher. Grüssen Sie Bellomio!", next: 3 },
+          { text: "Okay, danke. Schönen Tag.", next: 105 }
+        ]
+      },
+      // 3: Erfolg
+      {
+        id: 3,
+        text: "Oh, danke, werde ich ausrichten! Schönen Tag.",
+        options: [
+          { text: "[ANGRIFF ERFOLGREICH] Auflegen.", next: 4 }
+        ]
+      },
+      // 4: Ende (Erfolg)
+      {
+        id: 4,
+        text: "[Anruf beendet. Sie haben den 2FA-Code erbeutet!]",
+        options: [] 
+      },
+
+      // --- SACKGASSEN (FAILURE PATHS) ---
+      // 100: Falsche Eröffnung (Routine)
+      {
+        id: 100,
+        text: "Eine Routineüberprüfung? Dafür habe ich jetzt keine Zeit und auch keine Ankündigung erhalten. Auf Wiedersehen." +
+              "<br><br><i>[Walter legt auf. Der Angriff ist gescheitert.]</i>",
+        options: [
+            { text: "Mist! Nochmal versuchen (Anruf neu starten)", next: 0 }
+        ]
+      },
+      // 101: Falsche Eröffnung (Passwort)
+      {
+        id: 101,
+        text: "Mein Passwort? Wieso rufen Sie mich deswegen an? Das ist höchst verdächtig. Ich melde das." +
+              "<br><br><i>[Walter legt auf. Der Angriff ist gescheitert.]</i>",
+        options: [
+            { text: "Mist! Nochmal versuchen (Anruf neu starten)", next: 0 }
+        ]
+      },
+      // 102: Falscher Vorwand (Panik)
+      {
+        id: 102,
+        text: "Sofort sperren? Oh Gott! Ich lege auf und prüfe das sofort selbst nach!" +
+              "<br><br><i>[Walter legt auf. Er ist panisch und misstraut Ihnen. Der Angriff ist gescheitert.]</i>",
+        options: [
+            { text: "Verdammt. Zurück (vor dem Vorwand)", next: 1 }
+        ]
+      },
+      // 103: Falscher Vorwand (Passwort genannt)
+      {
+        id: 103,
+        text: "Woher... woher kennen Sie mein Passwort?! Das ist ja unglaublich! Ich melde Sie sofort!" +
+              "<br><br><i>[Walter legt auf. Er ist misstrauisch. Der Angriff ist gescheitert.]</i>",
+        options: [
+            { text: "Verdammt. Zurück (vor dem Vorwand)", next: 1 }
+        ]
+      },
+      // 104: Falscher Abschluss (Passwort gefragt)
+      {
+        id: 104,
+        text: "Mein Passwort? Das werde ich Ihnen sicher NICHT am Telefon sagen! Ich dachte, Sie wären vom Support!" +
+              "<br><br><i>[Walter legt auf. Der Angriff ist gescheitert.]</i>",
+        options: [
+            { text: "Zu gierig! Zurück (vor dem Abschluss)", next: 2 }
+        ]
+      },
+      // 105: Falscher Abschluss (Suboptimal)
+      {
+        id: 105,
+        text: "Okay, danke. Schönen Tag." +
+              "<br><br><i>[Walter legt auf. Der Angriff ist gescheitert. Sie haben den Code nicht bestätigt und die Chance verpasst, mit 'Bellomio' volles Vertrauen aufzubauen.]</i>",
+        options: [
+            { text: "Das war zu schwach. Zurück (vor dem Abschluss)", next: 2 }
+        ]
+      }
+    ];
+
+    let currentStepId = 0;
+
+    function getStepById(id) {
+        return conversation.find(step => step.id === id);
+    }
+
+    function addMessage(text, speaker = "walter") {
+      const msg = document.createElement("div");
+      msg.classList.add("chat-message", `speaker-${speaker}`);
+      
+      if (speaker === "walter") {
+        msg.innerHTML = `<img src="${walterAvatar}" alt="Walter" class="avatar"><span>${text}</span>`;
+      } else {
+        const span = document.createElement('span');
+        span.textContent = text;
+        msg.appendChild(span);
+      }
+      chatLog.appendChild(msg);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function showOptions(options) {
+      optionsArea.innerHTML = "";
+      if (options.length === 0) {
+        const endMsg = document.createElement("p");
+        endMsg.textContent = "[Chat beendet]";
+        endMsg.style.textAlign = "center";
+        endMsg.style.color = "#888";
+        optionsArea.appendChild(endMsg);
+        return;
+      }
+
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.classList.add("option-button");
+        btn.textContent = opt.text;
+        btn.onclick = () => {
+          addMessage(opt.text, "user"); 
+          optionsArea.innerHTML = ''; 
+          const nextStepData = getStepById(opt.next);
+          if (nextStepData) {
+            currentStepId = nextStepData.id;
+            setTimeout(() => nextStep(nextStepData), 1000); 
+          }
+        };
+        optionsArea.appendChild(btn);
+      });
+    }
+
+    function nextStep(stepData) {
+      const step = stepData || getStepById(currentStepId);
+
+      if (step.text) { 
+        addMessage(step.text, "walter");
+      }
+      
+      // ==========================================================
+      // HIER IST DER E-LEARNING-TRIGGER EINGEBAUT
+      // ==========================================================
+      // Wenn der erfolgreiche End-Knoten (ID 4) erreicht wird...
+      if (step.id === 4) {
+        // ...versuchen, mit der Storyline-API zu kommunizieren.
+        try {
+          // Holt den Storyline-Player (funktioniert nur im Kurs)
+          var player = window.parent.GetPlayer(); 
+          // Setzt die Storyline-Variable "Complete" auf true
+          player.SetVar("Complete", true); 
+        } catch (e) {
+          // Fängt Fehler ab, falls die HTML nicht in Storyline läuft
+          console.log("Storyline-Player nicht gefunden. (Normal beim lokalen Testen)");
+        }
+      }
+      // ==========================================================
+      
+      if (step.options) {
+        setTimeout(() => showOptions(step.options), 500); 
+      }
+    }
+    
+    function startConversation() {
+        const firstStep = getStepById(0);
+        nextStep(firstStep);
+    }
+    
+    // Startet die Konversation
+    startConversation();
+</script>
+
+</body>
+</html>
