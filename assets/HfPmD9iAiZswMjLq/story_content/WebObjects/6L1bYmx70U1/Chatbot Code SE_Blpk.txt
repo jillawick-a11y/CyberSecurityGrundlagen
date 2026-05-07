@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat mit Assistent</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+
+    #chat-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+      min-height: 500px;
+    }
+
+    #chat-header {
+      background-color: #4d2494; /* ANGEPASSTE FARBE */
+      color: #fff; /* Bessere Lesbarkeit */
+      font-family: monospace;
+      padding: 15px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: center;
+    }
+
+    #chat-log {
+      flex-grow: 1;
+      padding: 15px;
+      overflow-y: auto;
+      border-bottom: 1px solid #eee;
+    }
+
+    .chat-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 18px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .chat-message img.avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Umbenannt in "assistant" */
+    .speaker-assistant { 
+      background-color: #e9e9eb;
+      color: #000;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .speaker-user {
+        background-color: #006D41;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+    }
+
+    #options-area {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-button {
+      background-color: #4d2494; /* ANGEPASSTE FARBE */
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 18px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95em;
+      transition: background-color 0.2s ease;
+    }
+
+    .option-button:hover {
+      background-color: #3a1a7a; /* Dunklere Hover-Farbe */
+    }
+
+    /* Neuer Style für den Abschluss-Button */
+    .finish-button {
+        background-color: #28a745; /* Grüne Farbe für "Abschliessen" */
+        text-align: center;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+    .finish-button:hover {
+        background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-header">
+      <h2>Assistent | Walter Where Consulting</h2>
+    </div>
+    <div id="chat-log"></div>
+    <div id="options-area"></div>
+  </div>
+
+<script>
+    const chatLog = document.getElementById("chat-log");
+    const optionsArea = document.getElementById("options-area");
+
+    const assistantAvatar = "assistant_avatar.png"; 
+
+    const conversation = [
+      // 0: Start
+      {
+        id: 0,
+        text: "Guten Tag, Sie sind mit dem virtuellen Assistenten von Walter Where Consulting verbunden. Wie kann ich Ihnen helfen?",
+        options: [
+          { text: "Guten Tag, ich bin von der Polizei. Ich habe einen entlaufenen Hund gefunden, der Herrn Where gehören könnte!", next: 1 },
+          { text: "Ich habe eine technische Frage.", next: 100 },
+          { text: "Ich möchte mit Herrn Where sprechen.", next: 101 }
+        ]
+      },
+      // 1: Verifizierung (Geburtsdatum)
+      {
+        id: 1,
+        text: "Oh, ein Hund? Sind Sie sicher, dass er Herrn Where gehört? Es gibt viele 'Wheres' in der Stadt. Um sicherzugehen, dass Sie von einer Behörde sind, muss ich Sie verifizieren. Kennen Sie sein Geburtsdatum?",
+        options: [
+          { text: "Ja klar: 12.07.1975", next: 102 },
+          { text: "Ja klar: 07.12.1975", next: 2 },
+          { text: "Ja klar: 07.12.1976", next: 102 }
+        ]
+      },
+      // 2: Verifizierung (Hundename)
+      {
+        id: 2,
+        text: "Das ist korrekt. Gut. Wenn Sie den Hund gescannt haben, kennen Sie ja sicher auch seinen Namen. Wie lautet er?",
+        options: [
+          { text: "Der Chip sagt: Bello", next: 103 },
+          { text: "Der Chip sagt: Walter Jr.", next: 103 },
+          { text: "Der Chip sagt: Bellomio", next: 3 }
+        ]
+      },
+      // 3: Vertrauen (Ziel)
+      {
+        id: 3,
+        text: "Perfekt, das stimmt alles. 'Bellomio' ist sein Liebling! Gut, dass Sie angerufen haben. Was benötigen Sie von mir, um ihn zurückzubringen?",
+        options: [
+          { text: "Gerne die private Telefonnummer von Herrn Where, damit ich ihn erreichen kann.", next: 4 },
+          { text: "Sagen Sie ihm, er soll mich unter 0123-456789 anrufen.", next: 104 }
+        ]
+      },
+      // 4: Erfolg (Wartet auf Button-Klick)
+      {
+        id: 4,
+        text: "Natürlich, das ist ein Notfall. Seine private Mobilnummer ist <strong>+41 79 123 45 67</strong>. Ich informiere ihn auch, dass Sie sich melden. Vielen Dank für Ihre Hilfe!",
+        options: [
+          // Hier KEIN next: 5, sondern ein spezieller End-Button
+          { text: "Abschliessen und weiter zum E-Learning", next: 'finish_challenge' } 
+        ]
+      },
+      // 5: Ende (Wird nicht direkt aufgerufen, sondern durch den Button-Klick simuliert)
+      {
+        id: 5,
+        text: "Gerne geschehen. [Verbindung wird getrennt]",
+        options: [] 
+      },
+
+      // --- SACKGASSEN (FAILURE PATHS) ---
+      // 100: Falsche Auswahl (Technik)
+      {
+        id: 100,
+        text: "Für technische Fragen ist dies der falsche Kanal. Bitte wählen Sie eine der relevanten Optionen.",
+        options: [
+            { text: "Zurück zum Start", next: 0 }
+        ]
+      },
+      // 101: Falsche Auswahl (Sprechen)
+      {
+        id: 101,
+        text: "Herr Where ist zurzeit nicht erreichbar. Bitte wählen Sie eine der relevanten Optionen.",
+        options: [
+            { text: "Zurück zum Start", next: 0 }
+        ]
+      },
+      // 102: Falsches Geburtsdatum
+      {
+        id: 102,
+        text: "Das ist nicht korrekt. Das Geburtsdatum stimmt nicht. Als Behörde sollten Sie das wissen. Bitte versuchen Sie es erneut.",
+        options: [
+            { text: "Ich möchte es nochmal versuchen", next: 1 }
+        ]
+      },
+      // 103: Falscher Hundename
+      {
+        id: 103,
+        text: "Das ist nicht der Name seines Hundes. Der Chip-Scan scheint fehlerhaft zu sein. Bitte versuchen Sie es erneut.",
+        options: [
+            { text: "Ich möchte es nochmal versuchen", next: 2 }
+        ]
+      },
+      // 104: Falsches Ziel (Rückruf)
+      {
+        id: 104,
+        text: "Das ist nicht hilfreich, der Hund läuft sonst wieder weg! Ich muss den Halter *jetzt* direkt erreichen. Was benötigen Sie wirklich?",
+        options: [
+            { text: "Ich möchte etwas anderes anfordern", next: 3 }
+        ]
+      }
+    ];
+
+    let currentStepId = 0;
+
+    function getStepById(id) {
+        return conversation.find(step => step.id === id);
+    }
+
+    function addMessage(text, speaker = "assistant") {
+      const msg = document.createElement("div");
+      msg.classList.add("chat-message", `speaker-${speaker}`);
+      if (speaker === "assistant") {
+        msg.innerHTML = `<img src="${assistantAvatar}" alt="Assistent" class="avatar"><span>${text}</span>`;
+      } else {
+         const span = document.createElement('span');
+         span.textContent = text;
+         msg.appendChild(span);
+      }
+      chatLog.appendChild(msg);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function showOptions(options) {
+      optionsArea.innerHTML = "";
+      if (options.length === 0) {
+        // Hier wird kein Auto-Ende mehr ausgelöst
+        return;
+      }
+
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.classList.add("option-button");
+        btn.textContent = opt.text;
+
+        if (opt.next === 'finish_challenge') {
+            btn.classList.add("finish-button"); // Zusätzliche Klasse für Styling
+            btn.onclick = () => {
+                addMessage(opt.text, "user");
+                optionsArea.innerHTML = ''; // Optionen sofort ausblenden
+                triggerCompletion(); // E-Learning Trigger
+                // Optional: Eine kurze Endnachricht anzeigen, bevor der Screen verschwindet
+                setTimeout(() => {
+                    addMessage(getStepById(5).text, "assistant"); // Die "Verbindung getrennt" Nachricht
+                    // Hier könnten Sie auch eine Verzögerung einbauen, 
+                    // bevor die Storyline-Seite weitergeht, falls nötig.
+                }, 1000); 
+            };
+        } else {
+            btn.onclick = () => {
+                addMessage(opt.text, "user");
+                optionsArea.innerHTML = ''; 
+                const nextStepData = getStepById(opt.next);
+                if (nextStepData) {
+                    currentStepId = nextStepData.id;
+                    setTimeout(() => nextStep(nextStepData), 800); 
+                }
+            };
+        }
+        optionsArea.appendChild(btn);
+      });
+    }
+
+    function triggerCompletion() {
+        // E-Learning Trigger ausgelagert
+        try {
+            var player = window.parent.GetPlayer(); 
+            player.SetVar("Complete", true); 
+        } catch (e) {
+            console.log("Storyline-Player nicht gefunden. (Normal beim lokalen Testen)");
+        }
+    }
+
+    function nextStep(stepData) {
+      const step = stepData || getStepById(currentStepId);
+      addMessage(step.text, "assistant");
+      // Der Trigger findet jetzt nur noch beim Klick auf den "Abschliessen"-Button statt.
+      
+      if (step.options) {
+        showOptions(step.options);
+      }
+    }
+
+    // Startet die Konversation
+    nextStep();
+</script>
+
+</body>
+</html>
